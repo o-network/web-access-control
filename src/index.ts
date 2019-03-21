@@ -1,6 +1,7 @@
 import { Request, Response } from "@opennetwork/http-representation";
-import $rdf, { IndexedFormula, NamedNode, Node } from "rdflib";
+import $rdf, { IndexedFormula, NamedNode } from "rdflib";
 import ACLCheck from "@solid/acl-check";
+import { URL } from "url";
 
 const NAMESPACE_ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
 

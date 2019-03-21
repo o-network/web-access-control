@@ -7,7 +7,7 @@ export declare type WebAccessControlOptions = {
     agent: string;
     origin: string;
     fetch: (request: Request) => Promise<Response>;
-    isOriginAllowed?: (origin: string) => boolean | Promise<boolean>;
+    trustedOrigins?: string[];
     allowedCache?: {
         [key: string]: WebAccessControlResult;
     };

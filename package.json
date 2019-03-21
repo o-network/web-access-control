@@ -12,15 +12,15 @@
   },
   "devDependencies": {
     "@types/es6-shim": "^0.31.39",
+    "@types/node": "^11.11.4",
     "@types/rdflib": "^0.17.1",
     "es6-shim": "^0.35.5",
     "tslint": "^5.14.0",
     "typescript": "^3.3.4000"
   },
   "dependencies": {
-    "@opennetwork/http-representation": "^1.0.3",
+    "@opennetwork/http-representation": "^1.0.4",
     "@solid/acl-check": "file:./src/types/solid/acl-check",
-    "rdflib": "^0.20.0",
-    "solid-acl-check": "solid/acl-check"
+    "rdflib": "^0.20.0"
   }
 }

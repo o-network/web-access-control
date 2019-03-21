@@ -9,10 +9,10 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
-"@opennetwork/http-representation@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-1.0.3.tgz#a7e9a550be624349ce4b9741d4c766758360ba17"
-  integrity sha512-U2s3nNieXwcEBoXMbXP0qBL+5pi5BMkWOvhh45/6J4rJqIqVTNLI9O1Ty9llgWzYAnDBmXVMme+R6KQTexamNg==
+"@opennetwork/http-representation@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-1.0.4.tgz#e90bbb61cf9efb4c665651905426b347f5b104ed"
+  integrity sha512-nfLs/rqpltwmsiUXut6P3rexKKtICtnl5THeVdXGUbH4rl+tvFG0WvxfxPAvlCXs00z5PC/Lu2EmoBnbXpGsVA==
 
 "@solid/acl-check@file:./src/types/solid/acl-check":
   version "1.0.0"
@@ -120,6 +120,11 @@
   version "0.31.39"
   resolved "https://registry.npmjs.org/@types/es6-shim/-/es6-shim-0.31.39.tgz#61de60fac180f967177bcde598a62072a39ea04b"
   integrity sha512-z2JtmHE1wg75JTdT1qWGvW4eDOk6DUW1Exdzrs+8QTPFttkdTr4pKVzLLCCAOUC8i/KiG+QtkSEteQ5hDxwbpg==
+
+"@types/node@^11.11.4":
+  version "11.11.4"
+  resolved "https://registry.npmjs.org/@types/node/-/node-11.11.4.tgz#8808bd5a82bbf6f5d412eff1c228d178e7c24bb3"
+  integrity sha512-02tIL+QIi/RW4E5xILdoAMjeJ9kYq5t5S2vciUdFPXv/ikFTb0zK8q9vXkg4+WAJuYXGiVT1H28AkD2C+IkXVw==
 
 "@types/rdflib@^0.17.1":
   version "0.17.1"
@@ -824,22 +829,6 @@ rdf-canonize@^1.0.2:
     node-forge "^0.8.1"
     semver "^5.6.0"
 
-rdf-ns@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.npmjs.org/rdf-ns/-/rdf-ns-0.1.0.tgz#38ac32bb48b3c9dcae9534c85ab4864408bdd816"
-  integrity sha1-OKwyu0izydyulTTIWrSGRAi92BY=
-
-rdflib@^0.12.1:
-  version "0.12.3"
-  resolved "https://registry.npmjs.org/rdflib/-/rdflib-0.12.3.tgz#2b42066a6609c06b40a90485849362c7cb95ea1e"
-  integrity sha1-K0IGamYJwGtAqQSFhJNix8uV6h4=
-  dependencies:
-    async "^0.9.x"
-    jsonld "^0.4.5"
-    n3 "^0.4.1"
-    xmldom "^0.1.22"
-    xmlhttprequest "^1.7.0"
-
 rdflib@^0.20.0:
   version "0.20.0"
   resolved "https://registry.npmjs.org/rdflib/-/rdflib-0.20.0.tgz#def479bb00c4d3b80b7ab0f1c1bc34fc814dc521"
@@ -930,13 +919,6 @@ semver@^5.3.0, semver@^5.6.0:
   resolved "https://registry.npmjs.org/semver/-/semver-5.6.0.tgz#7e74256fbaa49c75aa7c7a205cc22799cac80004"
   integrity sha512-RS9R6R35NYgQn++fkDWaOmqGoj4Ek9gGs+DPxNUZKuwE183xjJroKvyo1IzVFeXvUrvmALy6FWD5xrdJT25gMg==
 
-solid-acl-check@solid/acl-check:
-  version "0.2.0"
-  resolved "https://codeload.github.com/solid/acl-check/tar.gz/6b1d13f9b671705f31e6409895a68c39333d793d"
-  dependencies:
-    rdflib "^0.12.1"
-    solid-namespace "0.1.0"
-
 solid-auth-cli@^0.1.11:
   version "0.1.11"
   resolved "https://registry.npmjs.org/solid-auth-cli/-/solid-auth-cli-0.1.11.tgz#54d6c6179bf63452cd151e0643f0be7045014501"
@@ -960,13 +942,6 @@ solid-auth-client@^2.3.0:
     auth-header "^1.0.0"
     commander "^2.11.0"
     isomorphic-fetch "^2.2.1"
-
-solid-namespace@0.1.0:
-  version "0.1.0"
-  resolved "https://registry.npmjs.org/solid-namespace/-/solid-namespace-0.1.0.tgz#3aa17ce85398f34f2e65fca4cbd0b1267ab0259d"
-  integrity sha1-OqF86FOY808uZfyky9CxJnqwJZ0=
-  dependencies:
-    rdf-ns "^0.1.0"
 
 sprintf-js@~1.0.2:
   version "1.0.3"
@@ -1158,8 +1133,3 @@ xmldom@^0.1.22:
   version "0.1.27"
   resolved "https://registry.npmjs.org/xmldom/-/xmldom-0.1.27.tgz#d501f97b3bdb403af8ef9ecc20573187aadac0e9"
   integrity sha1-1QH5ezvbQDr4757MIFcxh6rawOk=
-
-xmlhttprequest@^1.7.0:
-  version "1.8.0"
-  resolved "https://registry.npmjs.org/xmlhttprequest/-/xmlhttprequest-1.8.0.tgz#67fe075c5c24fef39f9d65f5f7b7fe75171968fc"
-  integrity sha1-Z/4HXFwk/vOfnWX197f+dRcZaPw=

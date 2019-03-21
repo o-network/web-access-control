@@ -13,7 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const http_representation_1 = require("@opennetwork/http-representation");
 const rdflib_1 = __importDefault(require("rdflib"));
-const acl_check_1 = __importDefault(require("@solid/acl-check/src/acl-check"));
+const acl_check_1 = __importDefault(require("@solid/acl-check"));
+const url_1 = require("url");
 const NAMESPACE_ACL = rdflib_1.default.Namespace("http://www.w3.org/ns/auth/acl#");
 function resolveValue(value) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -39,7 +40,7 @@ function createErrorResponse(error) {
     });
 }
 function getContainerForResource(resource) {
-    const url = new URL(resource);
+    const url = new url_1.URL(resource);
     if (url.pathname === "/") {
         return undefined;
     }
@@ -99,16 +100,6 @@ function getACL(resource, options) {
         };
     });
 }
-function getOrigin(options) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const agentOrigin = options.origin;
-        if (!options.isOriginAllowed) {
-            return agentOrigin;
-        }
-        const allowed = resolveValue(options.isOriginAllowed(agentOrigin));
-        return allowed ? agentOrigin : undefined;
-    });
-}
 function isAllowed(resource, mode, options) {
     return __awaiter(this, void 0, void 0, function* () {
         const { allowedCache, agent } = options, cacheKey = `${mode}:${resource}:${agent || "---ANONYMOUS---"}`;
@@ -122,7 +113,7 @@ function isAllowed(resource, mode, options) {
             }
             return false;
         }
-        const agentOrigin = yield getOrigin(options);
+        const agentOrigin = options.origin;
         const modes = [mode];
         let workingResource = resource;
         const aclSuffix = options.aclSuffix || ".acl";
@@ -130,10 +121,31 @@ function isAllowed(resource, mode, options) {
             modes.push("Control");
             workingResource = workingResource.substr(0, workingResource.length - aclSuffix.length);
         }
+        const fetchGraph = (uriNode) => __awaiter(this, void 0, void 0, function* () {
+            const request = new http_representation_1.Request(uriNode.doc().value, {
+                method: "GET",
+                headers: {
+                    "Accept": "text/turtle"
+                }
+            });
+            const response = yield options.fetch(request);
+            const body = yield response.text();
+            yield new Promise((resolve, reject) => rdflib_1.default.parse(body, acl.graph, resource, request.headers.get("Accept"), (error) => error ? reject(error) : resolve()));
+            return acl.graph;
+        });
         const originTrustedModes = yield Promise.resolve()
             // Because of https://github.com/solid/acl-check/issues/23
-            .then(() => acl_check_1.default.getTrustedModesForOrigin());
-        return undefined;
+            .then(() => acl_check_1.default.getTrustedModesForOrigin(acl.graph, rdflib_1.default.sym(workingResource), workingResource.endsWith("/"), rdflib_1.default.sym(acl.aclResource), agentOrigin, fetchGraph));
+        const denied = acl_check_1.default.accessDenied(acl.graph, rdflib_1.default.sym(workingResource), workingResource.endsWith("/"), rdflib_1.default.sym(acl.aclResource), agent ? rdflib_1.default.sym(agent) : undefined, modes.map(mode => NAMESPACE_ACL(mode)), agentOrigin ? rdflib_1.default.sym(agentOrigin) : undefined, options.trustedOrigins ? options.trustedOrigins.map(origin => rdflib_1.default.sym(origin)) : undefined, originTrustedModes);
+        if (denied) {
+            options.allowedCache[cacheKey] = false;
+        }
+        else {
+            options.allowedCache[cacheKey] = {
+                public: !options.agent
+            };
+        }
+        return options.allowedCache[cacheKey];
     });
 }
 exports.isAllowed = isAllowed;
