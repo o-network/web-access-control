@@ -1,0 +1,26 @@
+{
+  "name": "@opennetwork/web-access-control",
+  "version": "1.0.1",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc --declaration && npm run tslint",
+    "watch": "tsc -w",
+    "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/es6-shim": "^0.31.39",
+    "@types/rdflib": "^0.17.1",
+    "es6-shim": "^0.35.5",
+    "tslint": "^5.14.0",
+    "typescript": "^3.3.4000"
+  },
+  "dependencies": {
+    "@opennetwork/http-representation": "^1.0.3",
+    "@solid/acl-check": "file:./src/types/solid/acl-check",
+    "rdflib": "^0.20.0",
+    "solid-acl-check": "solid/acl-check"
+  }
+}
