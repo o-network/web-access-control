@@ -2,7 +2,7 @@ import { Request, Response } from "@opennetwork/http-representation";
 import $rdf, { IndexedFormula, NamedNode } from "rdflib";
 import ACLCheck from "@solid/acl-check";
 import { URL } from "url";
-import { join, resolve } from "path";
+import { resolve } from "path";
 
 const NAMESPACE_ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
 
@@ -19,7 +19,7 @@ export type WebAccessControlOptions = {
   trustedOrigins?: string[]
   allowedCache?: { [key: string]: WebAccessControlResult };
   aclResourceCache?: { [key: string]: Promise<string> };
-  aclSuffix?: string;
+  getAccessResourceIfACLResource?: (resource: string) => string | Promise<string>
 };
 
 export type WebAccessControlMode = "Read" | "Write" | "Control" | string;
@@ -30,7 +30,7 @@ type ACLDetails = {
   resource: string;
 };
 
-async function resolveValue<T>(value: T): Promise<T> {
+async function resolveValue<T>(value: T | Promise<T>): Promise<T> {
   return value;
 }
 
@@ -180,11 +180,13 @@ export async function isAllowed(resource: string, mode: WebAccessControlMode, op
 
   let workingResource = resource;
 
-  const aclSuffix = options.aclSuffix || ".acl";
 
-  if (resource.endsWith(aclSuffix)) {
-    modes.push("Control");
-    workingResource = workingResource.substr(0, workingResource.length - aclSuffix.length);
+  if (options.getAccessResourceIfACLResource) {
+    const newAccessResource = await resolveValue(options.getAccessResourceIfACLResource(workingResource));
+    if (newAccessResource) {
+      workingResource = newAccessResource;
+      modes.push("Control");
+    }
   }
 
   const fetchGraph = async (uriNode: NamedNode) => {
