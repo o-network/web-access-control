@@ -2,6 +2,7 @@ import { Request, Response } from "@opennetwork/http-representation";
 import $rdf, { IndexedFormula, NamedNode } from "rdflib";
 import ACLCheck from "@solid/acl-check";
 import { URL } from "url";
+import { join, resolve } from "path";
 
 const NAMESPACE_ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
 
@@ -71,7 +72,22 @@ function getContainerForResource(resource: string): string | undefined {
 
 function getACLLinkFromResponse(response: Response): string | undefined {
   const links = response.headers.getAll("Link");
-  return undefined;
+  const found = links
+    .map(link => link
+      .split(";")
+      .map(value => value.trim())
+      .filter(value => value)
+    )
+    .find(parts => parts.includes("rel=\"acl\""));
+  if (!found) {
+    return undefined;
+  }
+  const foundPart = found
+    .find(part => /^<>$/.test(part));
+  if (!foundPart) {
+    return undefined;
+  }
+  return foundPart.substr(0, foundPart.length - 1).substr(1);
 }
 
 
@@ -79,7 +95,13 @@ async function getACLResource(resource: string, options: WebAccessControlOptions
   const response = await options.fetch(new Request(resource, {
     method: "HEAD"
   }));
-  return getACLLinkFromResponse(response);
+  const link = getACLLinkFromResponse(response);
+  const resourceUrl = new URL(resource);
+  resourceUrl.pathname = resolve(
+    resourceUrl.pathname.endsWith("/") ? resourceUrl.pathname : resourceUrl.pathname.substr(0, resourceUrl.pathname.lastIndexOf("/")),
+    link
+  );
+  return resourceUrl.toString();
 }
 
 async function getCached<T>(cache: { [key: string ]: Promise<T> }, fn: (key: string, ...args: any[]) => Promise<T>, key: string, ...args: any[]): Promise<T> {
