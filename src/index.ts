@@ -96,7 +96,7 @@ function getACLLinkFromResponse(response: Response): string | undefined {
     .filter(parts => parts.length >= 2)
     .map(parts => {
       if (!/^<.+>$/.test(parts[0])) {
-        return null;
+        return undefined;
       }
       const foundRel = parts.find(
         part => /rel\s?=\s?"?acl"?/.test(part)
