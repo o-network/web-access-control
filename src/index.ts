@@ -1,8 +1,7 @@
 import { Request, Response } from "@opennetwork/http-representation";
 import $rdf, { IndexedFormula, NamedNode } from "rdflib";
 import ACLCheck from "@solid/acl-check";
-import { URL } from "url";
-import { resolve } from "path";
+import join from "join-path";
 
 const NAMESPACE_ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
 
@@ -17,6 +16,8 @@ export type WebAccessControlResourceAndMode = {
   mode: WebAccessControlMode | WebAccessControlMode[]
 };
 
+export type WebAccessControlGetGraph = (url: string, graph: IndexedFormula) => Promise<Response | IndexedFormula>;
+
 export type WebAccessControlOptions = {
   agent: string;
   origin: string;
@@ -25,6 +26,7 @@ export type WebAccessControlOptions = {
   allowedCache?: { [key: string]: WebAccessControlResult };
   aclResourceCache?: { [key: string]: Promise<string> };
   getAccessResourceAndModeIfACLResource?: (resource: string) => WebAccessControlResourceAndMode | Promise<WebAccessControlResourceAndMode>
+  getGraph?: WebAccessControlGetGraph
 };
 
 export type WebAccessControlMode = "Read" | "Write" | "Append" | "Control" | string;
@@ -121,7 +123,7 @@ async function getACLResource(resource: string, options: WebAccessControlOptions
   }));
   const link = getACLLinkFromResponse(response);
   const resourceUrl = new URL(resource);
-  resourceUrl.pathname = resolve(
+  resourceUrl.pathname = join(
     resourceUrl.pathname.endsWith("/") ? resourceUrl.pathname : resourceUrl.pathname.substr(0, resourceUrl.pathname.lastIndexOf("/")),
     link
   );
@@ -136,43 +138,23 @@ async function getCached<T>(cache: { [key: string]: Promise<T> }, fn: (key: stri
   return cache[key];
 }
 
-async function getACL(resource: string, options: WebAccessControlOptions): Promise<ACLDetails | undefined> {
+async function getACL(resource: string, getGraph: WebAccessControlGetGraph, options: WebAccessControlOptions): Promise<ACLDetails | undefined> {
   const aclResource = await getCached(options.aclResourceCache, getACLResource, resource, options);
 
-  const request = new Request(
-    aclResource,
-    {
-      method: "GET",
-      headers: {
-        "Accept": "text/turtle"
-      }
-    }
-  );
-  const response = await options.fetch(request);
+  const graph = $rdf.graph();
+  const result: Response | IndexedFormula = await getGraph(aclResource, graph);
 
-  if (response.status === 404) {
+  if (result instanceof Response && result.status === 404) {
     return getACL(
       getContainerForResource(resource),
+      getGraph,
       options
     );
   }
 
-  if (!response.ok) {
+  if (result instanceof Response && !result.ok) {
     throw new Error("Could not retrieve ACL");
   }
-
-  const body = await response.text();
-  const graph = $rdf.graph();
-
-  await new Promise(
-    (resolve, reject) => $rdf.parse(
-      body,
-      graph,
-      resource,
-      request.headers.get("Accept"),
-      (error) => error ? reject(error) : resolve()
-    )
-  );
 
   return {
     graph,
@@ -189,7 +171,34 @@ export async function isAllowed(resource: string, mode: WebAccessControlMode | W
     return allowedCache[cacheKey];
   }
 
-  const acl = await getACL(resource, options);
+  const getGraph: WebAccessControlGetGraph = options.getGraph || (async (url: string, graph: IndexedFormula) => {
+    const request = new Request(
+      url,
+      {
+        method: "GET",
+        headers: {
+          "Accept": "text/turtle"
+        }
+      }
+    );
+    const response = await options.fetch(request);
+    if (!response.ok) {
+      return response;
+    }
+    const body = await response.text();
+    await new Promise(
+      (resolve, reject) => $rdf.parse(
+        body,
+        graph,
+        resource,
+        request.headers.get("Accept"),
+        (error) => error ? reject(error) : resolve()
+      )
+    );
+    return graph;
+  });
+
+  const acl = await getACL(resource, getGraph, options);
 
   if (!acl) {
     if (allowedCache) {
@@ -213,39 +222,21 @@ export async function isAllowed(resource: string, mode: WebAccessControlMode | W
 
   modes = Array.isArray(modes) ? [...modes] : [modes];
 
-  const fetchGraph = async (uriNode: NamedNode) => {
-    const request = new Request(
-      uriNode.doc().value,
-      {
-        method: "GET",
-        headers: {
-          "Accept": "text/turtle"
-        }
-      }
-    );
-    const response = await options.fetch(request);
-    const body = await response.text();
-    await new Promise(
-      (resolve, reject) => $rdf.parse(
-        body,
-        acl.graph,
-        resource,
-        request.headers.get("Accept"),
-        (error) => error ? reject(error) : resolve()
-      )
-    );
-    return acl.graph;
-  };
-
   const originTrustedModes = await Promise.resolve()
-    // Because of https://github.com/solid/acl-check/issues/23
+  // Because of https://github.com/solid/acl-check/issues/23
     .then(() => ACLCheck.getTrustedModesForOrigin(
       acl.graph,
       $rdf.sym(workingResource),
       workingResource.endsWith("/"),
       $rdf.sym(acl.aclResource),
       agentOrigin,
-      fetchGraph
+      async (uriNode: NamedNode): Promise<IndexedFormula> => {
+        const value = await getGraph(uriNode.doc().value, acl.graph);
+        if (value instanceof Response && !value.ok) {
+          throw new Error(`Could not fetch: ${uriNode.doc().value}`);
+        }
+        return value as IndexedFormula;
+      }
     ));
 
   const denied = ACLCheck.accessDenied(

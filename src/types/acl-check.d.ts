@@ -1,6 +1,6 @@
-import { IndexedFormula, Node, ValueType, NamedNode } from "rdflib";
-
 declare module "@solid/acl-check" {
+
+  import { IndexedFormula, Node, ValueType, NamedNode } from "rdflib";
 
   export function getTrustedModesForOrigin(kb: IndexedFormula, doc: ValueType, isDirectory: boolean, aclDoc: ValueType, origin: ValueType, fetch: (node: NamedNode) => Promise<IndexedFormula>): Promise<Node[]>;
 

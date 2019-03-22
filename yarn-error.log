@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/Cellar/node/11.1.0/bin/node /Users/fabian/.yarn/bin/yarn.js add --dev file:./src/types/solid-acl-check.d.ts
+  /usr/local/Cellar/node/11.1.0/bin/node /Users/fabian/.yarn/bin/yarn.js add --dev @types/solid__acl-check
 
 PATH: 
   /Users/fabian/.yarn/bin:/Users/fabian/.config/yarn/global/node_modules/.bin:/usr/local/bin:/usr/local/share/android-sdk/build-tools/28.0.2:/usr/local/share/android-sdk/platform-tools:/usr/local/share/android-sdk/tools:/usr/local/opt/gradle/bin:/usr/local/opt/maven/bin:/usr/local/opt/ant/bin:/Users/fabian/Library/Python/2.7/bin:/Users/fabian/.npm-packages/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
@@ -14,12 +14,22 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: ENOTDIR: not a directory, scandir '/Users/fabian/Library/Caches/Yarn/v4/npm-sers-fabian-src-network-solid-web-access-control-src-types-0.0.0-54a3858d-ff35-4d39-b9f6-810ff6deb064-1553164967386/node_modules/Users/fabian/src/network/solid/web-access-control/src/types'
+  Error: https://registry.npmjs.org/@types%2fsolid__acl-check: Not found
+      at Request.params.callback [as _callback] (/Users/fabian/.yarn/lib/cli.js:66255:18)
+      at Request.self.callback (/Users/fabian/.yarn/lib/cli.js:129397:22)
+      at Request.emit (events.js:197:13)
+      at Request.<anonymous> (/Users/fabian/.yarn/lib/cli.js:130369:10)
+      at Request.emit (events.js:197:13)
+      at IncomingMessage.<anonymous> (/Users/fabian/.yarn/lib/cli.js:130291:12)
+      at Object.onceWrapper (events.js:285:13)
+      at IncomingMessage.emit (events.js:202:15)
+      at endReadableNT (_stream_readable.js:1129:12)
+      at processTicksAndRejections (internal/process/next_tick.js:76:17)
 
 npm manifest: 
   {
     "name": "@opennetwork/web-access-control",
-    "version": "1.0.1",
+    "version": "1.0.9",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "license": "MIT",
@@ -29,18 +39,25 @@ npm manifest:
       "tslint": "tslint -c tslint.json -p tsconfig.json",
       "prepublishOnly": "npm run build"
     },
+    "peerDependencies": {
+      "@opennetwork/http-representation": "^1.0.4",
+      "@solid/acl-check": "^0.2.0",
+      "rdflib": "^0.20.0"
+    },
     "devDependencies": {
+      "@opennetwork/http-representation": "^1.0.4",
+      "@solid/acl-check": "^0.2.0",
       "@types/es6-shim": "^0.31.39",
+      "@types/node": "^11.11.4",
       "@types/rdflib": "^0.17.1",
       "es6-shim": "^0.35.5",
+      "rdflib": "^0.20.0",
       "tslint": "^5.14.0",
-      "typescript": "^3.3.4000"
+      "typescript": "^3.3.4000",
+      "@types/solid__acl-check": "./src/ty[es/acl-check"
     },
     "dependencies": {
-      "@opennetwork/http-representation": "^1.0.3",
-      "@solid/acl-check": "^0.2.0",
-      "rdflib": "^0.20.0",
-      "solid-acl-check": "solid/acl-check"
+      "join-path": "^1.1.1"
     }
   }
 
@@ -59,10 +76,10 @@ Lockfile:
     dependencies:
       regenerator-runtime "^0.13.2"
   
-  "@opennetwork/http-representation@^1.0.3":
-    version "1.0.3"
-    resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-1.0.3.tgz#a7e9a550be624349ce4b9741d4c766758360ba17"
-    integrity sha512-U2s3nNieXwcEBoXMbXP0qBL+5pi5BMkWOvhh45/6J4rJqIqVTNLI9O1Ty9llgWzYAnDBmXVMme+R6KQTexamNg==
+  "@opennetwork/http-representation@^1.0.4":
+    version "1.0.4"
+    resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-1.0.4.tgz#e90bbb61cf9efb4c665651905426b347f5b104ed"
+    integrity sha512-nfLs/rqpltwmsiUXut6P3rexKKtICtnl5THeVdXGUbH4rl+tvFG0WvxfxPAvlCXs00z5PC/Lu2EmoBnbXpGsVA==
   
   "@solid/acl-check@^0.2.0":
     version "0.2.0"
@@ -176,6 +193,11 @@ Lockfile:
     resolved "https://registry.npmjs.org/@types/es6-shim/-/es6-shim-0.31.39.tgz#61de60fac180f967177bcde598a62072a39ea04b"
     integrity sha512-z2JtmHE1wg75JTdT1qWGvW4eDOk6DUW1Exdzrs+8QTPFttkdTr4pKVzLLCCAOUC8i/KiG+QtkSEteQ5hDxwbpg==
   
+  "@types/node@^11.11.4":
+    version "11.11.4"
+    resolved "https://registry.npmjs.org/@types/node/-/node-11.11.4.tgz#8808bd5a82bbf6f5d412eff1c228d178e7c24bb3"
+    integrity sha512-02tIL+QIi/RW4E5xILdoAMjeJ9kYq5t5S2vciUdFPXv/ikFTb0zK8q9vXkg4+WAJuYXGiVT1H28AkD2C+IkXVw==
+  
   "@types/rdflib@^0.17.1":
     version "0.17.1"
     resolved "https://registry.npmjs.org/@types/rdflib/-/rdflib-0.17.1.tgz#3097152f185fab9068fc4e512352aaa9ac8ce8ed"
@@ -214,6 +236,11 @@ Lockfile:
     integrity sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==
     dependencies:
       sprintf-js "~1.0.2"
+  
+  as-array@^2.0.0:
+    version "2.0.0"
+    resolved "https://registry.npmjs.org/as-array/-/as-array-2.0.0.tgz#4f04805d87f8fce8e511bc2108f8e5e3a287d547"
+    integrity sha1-TwSAXYf4/OjlEbwhCPjl46KH1Uc=
   
   asn1.js@1.0.3:
     version "1.0.3"
@@ -658,6 +685,15 @@ Lockfile:
     resolved "https://registry.npmjs.org/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
     integrity sha1-R+Y/evVa+m+S4VAOaQ64uFKcCZo=
   
+  join-path@^1.1.1:
+    version "1.1.1"
+    resolved "https://registry.npmjs.org/join-path/-/join-path-1.1.1.tgz#10535a126d24cbd65f7ffcdf15ef2e631076b505"
+    integrity sha1-EFNaEm0ky9Zff/zfFe8uYxB2tQU=
+    dependencies:
+      as-array "^2.0.0"
+      url-join "0.0.1"
+      valid-url "^1"
+  
   js-tokens@^3.0.2:
     version "3.0.2"
     resolved "https://registry.npmjs.org/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
@@ -985,13 +1021,6 @@ Lockfile:
     resolved "https://registry.npmjs.org/semver/-/semver-5.6.0.tgz#7e74256fbaa49c75aa7c7a205cc22799cac80004"
     integrity sha512-RS9R6R35NYgQn++fkDWaOmqGoj4Ek9gGs+DPxNUZKuwE183xjJroKvyo1IzVFeXvUrvmALy6FWD5xrdJT25gMg==
   
-  solid-acl-check@solid/acl-check:
-    version "0.2.0"
-    resolved "https://codeload.github.com/solid/acl-check/tar.gz/6b1d13f9b671705f31e6409895a68c39333d793d"
-    dependencies:
-      rdflib "^0.12.1"
-      solid-namespace "0.1.0"
-  
   solid-auth-cli@^0.1.11:
     version "0.1.11"
     resolved "https://registry.npmjs.org/solid-auth-cli/-/solid-auth-cli-0.1.11.tgz#54d6c6179bf63452cd151e0643f0be7045014501"
@@ -1161,6 +1190,11 @@ Lockfile:
     dependencies:
       punycode "^2.1.0"
   
+  url-join@0.0.1:
+    version "0.0.1"
+    resolved "https://registry.npmjs.org/url-join/-/url-join-0.0.1.tgz#1db48ad422d3402469a87f7d97bdebfe4fb1e3c8"
+    integrity sha1-HbSK1CLTQCRpqH99l73r/k+x48g=
+  
   util-deprecate@~1.0.1:
     version "1.0.2"
     resolved "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
@@ -1170,6 +1204,11 @@ Lockfile:
     version "3.3.2"
     resolved "https://registry.npmjs.org/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
     integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
+  
+  valid-url@^1:
+    version "1.0.9"
+    resolved "https://registry.npmjs.org/valid-url/-/valid-url-1.0.9.tgz#1c14479b40f1397a75782f115e4086447433a200"
+    integrity sha1-HBRHm0DxOXp1eC8RXkCGRHQzogA=
   
   verror@1.10.0:
     version "1.10.0"

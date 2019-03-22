@@ -14,8 +14,13 @@
   resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-1.0.4.tgz#e90bbb61cf9efb4c665651905426b347f5b104ed"
   integrity sha512-nfLs/rqpltwmsiUXut6P3rexKKtICtnl5THeVdXGUbH4rl+tvFG0WvxfxPAvlCXs00z5PC/Lu2EmoBnbXpGsVA==
 
-"@solid/acl-check@file:./src/types/solid/acl-check":
-  version "1.0.0"
+"@solid/acl-check@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.npmjs.org/@solid/acl-check/-/acl-check-0.2.0.tgz#64da1b9dc1341a82d7c8715f6d2122b1008e5e59"
+  integrity sha512-HjnwnpjvqE16k5yBNG0A7WIX9MveELv3Ge0DOJ8Cpt7e6aJ4sOpzY3A6x+ljOCOdxxT6CpGKhNGEdztZMGm1Qg==
+  dependencies:
+    rdflib "^0.12.1"
+    solid-namespace "0.1.0"
 
 "@solid/cli@^0.1.0":
   version "0.1.0"
@@ -164,6 +169,11 @@ argparse@^1.0.7:
   integrity sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==
   dependencies:
     sprintf-js "~1.0.2"
+
+as-array@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/as-array/-/as-array-2.0.0.tgz#4f04805d87f8fce8e511bc2108f8e5e3a287d547"
+  integrity sha1-TwSAXYf4/OjlEbwhCPjl46KH1Uc=
 
 asn1.js@1.0.3:
   version "1.0.3"
@@ -608,6 +618,15 @@ isstream@~0.1.2:
   resolved "https://registry.npmjs.org/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
   integrity sha1-R+Y/evVa+m+S4VAOaQ64uFKcCZo=
 
+join-path@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.npmjs.org/join-path/-/join-path-1.1.1.tgz#10535a126d24cbd65f7ffcdf15ef2e631076b505"
+  integrity sha1-EFNaEm0ky9Zff/zfFe8uYxB2tQU=
+  dependencies:
+    as-array "^2.0.0"
+    url-join "0.0.1"
+    valid-url "^1"
+
 js-tokens@^3.0.2:
   version "3.0.2"
   resolved "https://registry.npmjs.org/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
@@ -829,6 +848,22 @@ rdf-canonize@^1.0.2:
     node-forge "^0.8.1"
     semver "^5.6.0"
 
+rdf-ns@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.npmjs.org/rdf-ns/-/rdf-ns-0.1.0.tgz#38ac32bb48b3c9dcae9534c85ab4864408bdd816"
+  integrity sha1-OKwyu0izydyulTTIWrSGRAi92BY=
+
+rdflib@^0.12.1:
+  version "0.12.3"
+  resolved "https://registry.npmjs.org/rdflib/-/rdflib-0.12.3.tgz#2b42066a6609c06b40a90485849362c7cb95ea1e"
+  integrity sha1-K0IGamYJwGtAqQSFhJNix8uV6h4=
+  dependencies:
+    async "^0.9.x"
+    jsonld "^0.4.5"
+    n3 "^0.4.1"
+    xmldom "^0.1.22"
+    xmlhttprequest "^1.7.0"
+
 rdflib@^0.20.0:
   version "0.20.0"
   resolved "https://registry.npmjs.org/rdflib/-/rdflib-0.20.0.tgz#def479bb00c4d3b80b7ab0f1c1bc34fc814dc521"
@@ -942,6 +977,13 @@ solid-auth-client@^2.3.0:
     auth-header "^1.0.0"
     commander "^2.11.0"
     isomorphic-fetch "^2.2.1"
+
+solid-namespace@0.1.0:
+  version "0.1.0"
+  resolved "https://registry.npmjs.org/solid-namespace/-/solid-namespace-0.1.0.tgz#3aa17ce85398f34f2e65fca4cbd0b1267ab0259d"
+  integrity sha1-OqF86FOY808uZfyky9CxJnqwJZ0=
+  dependencies:
+    rdf-ns "^0.1.0"
 
 sprintf-js@~1.0.2:
   version "1.0.3"
@@ -1081,6 +1123,11 @@ uri-js@^4.2.2:
   dependencies:
     punycode "^2.1.0"
 
+url-join@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.npmjs.org/url-join/-/url-join-0.0.1.tgz#1db48ad422d3402469a87f7d97bdebfe4fb1e3c8"
+  integrity sha1-HbSK1CLTQCRpqH99l73r/k+x48g=
+
 util-deprecate@~1.0.1:
   version "1.0.2"
   resolved "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
@@ -1090,6 +1137,11 @@ uuid@^3.3.2:
   version "3.3.2"
   resolved "https://registry.npmjs.org/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
   integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
+
+valid-url@^1:
+  version "1.0.9"
+  resolved "https://registry.npmjs.org/valid-url/-/valid-url-1.0.9.tgz#1c14479b40f1397a75782f115e4086447433a200"
+  integrity sha1-HBRHm0DxOXp1eC8RXkCGRHQzogA=
 
 verror@1.10.0:
   version "1.10.0"
@@ -1133,3 +1185,8 @@ xmldom@^0.1.22:
   version "0.1.27"
   resolved "https://registry.npmjs.org/xmldom/-/xmldom-0.1.27.tgz#d501f97b3bdb403af8ef9ecc20573187aadac0e9"
   integrity sha1-1QH5ezvbQDr4757MIFcxh6rawOk=
+
+xmlhttprequest@^1.7.0:
+  version "1.8.0"
+  resolved "https://registry.npmjs.org/xmlhttprequest/-/xmlhttprequest-1.8.0.tgz#67fe075c5c24fef39f9d65f5f7b7fe75171968fc"
+  integrity sha1-Z/4HXFwk/vOfnWX197f+dRcZaPw=
