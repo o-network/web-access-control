@@ -9,10 +9,10 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
-"@opennetwork/http-representation@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-1.0.4.tgz#e90bbb61cf9efb4c665651905426b347f5b104ed"
-  integrity sha512-nfLs/rqpltwmsiUXut6P3rexKKtICtnl5THeVdXGUbH4rl+tvFG0WvxfxPAvlCXs00z5PC/Lu2EmoBnbXpGsVA==
+"@opennetwork/http-representation@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.npmjs.org/@opennetwork/http-representation/-/http-representation-1.0.8.tgz#7d7b3aaa02c79371c6f595a5a117eda929daab00"
+  integrity sha512-4tNBnnVRYj4HNFTm7v+IOMLcBxVPiQwAp6KSqOEjB9XTkL/U5c/JA9NNMi607JAyyJ7Zex6JqlsXn5MgCgyn3Q==
 
 "@solid/acl-check@^0.2.0":
   version "0.2.0"

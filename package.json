@@ -11,12 +11,12 @@
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
-    "@opennetwork/http-representation": "^1.0.4",
+    "@opennetwork/http-representation": "^1.0.8",
     "@solid/acl-check": "^0.2.0",
     "rdflib": "^0.20.0"
   },
   "devDependencies": {
-    "@opennetwork/http-representation": "^1.0.4",
+    "@opennetwork/http-representation": "^1.0.8",
     "@solid/acl-check": "^0.2.0",
     "@types/es6-shim": "^0.31.39",
     "@types/node": "^11.11.4",
