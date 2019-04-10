@@ -37,10 +37,6 @@ type ACLDetails = {
   resource: string;
 };
 
-async function resolveValue<T>(value: T | Promise<T>): Promise<T> {
-  return value;
-}
-
 function createForbiddenResponse() {
   return new Response(undefined, {
     status: 403,
@@ -122,6 +118,9 @@ async function getACLResource(resource: string, options: WebAccessControlOptions
     method: "HEAD"
   }));
   const link = getACLLinkFromResponse(response);
+  if (!link) {
+    return undefined;
+  }
   const resourceUrl = new URL(resource);
   resourceUrl.pathname = join(
     resourceUrl.pathname.endsWith("/") ? resourceUrl.pathname : resourceUrl.pathname.substr(0, resourceUrl.pathname.lastIndexOf("/")),
@@ -141,15 +140,24 @@ async function getCached<T>(cache: { [key: string]: Promise<T> }, fn: (key: stri
 async function getACL(resource: string, getGraph: WebAccessControlGetGraph, options: WebAccessControlOptions): Promise<ACLDetails | undefined> {
   const aclResource = await getCached(options.aclResourceCache, getACLResource, resource, options);
 
-  const graph = $rdf.graph();
-  const result: Response | IndexedFormula = await getGraph(aclResource, graph);
-
-  if (result instanceof Response && result.status === 404) {
+  function getContainerACL() {
     return getACL(
       getContainerForResource(resource),
       getGraph,
       options
     );
+  }
+
+  // No link was found for the resource
+  if (!aclResource) {
+    return getContainerACL();
+  }
+
+  const graph = $rdf.graph();
+  const result: Response | IndexedFormula = await getGraph(aclResource, graph);
+
+  if (result instanceof Response && result.status === 404) {
+    return getContainerACL();
   }
 
   if (result instanceof Response && !result.ok) {
@@ -213,7 +221,7 @@ export async function isAllowed(resource: string, mode: WebAccessControlMode | W
   let workingResource = resource;
 
   if (options.getAccessResourceAndModeIfACLResource) {
-    const newDetails = await resolveValue(options.getAccessResourceAndModeIfACLResource(workingResource));
+    const newDetails = await Promise.resolve(options.getAccessResourceAndModeIfACLResource(workingResource));
     if (newDetails) {
       workingResource = newDetails.resource;
       modes = newDetails.mode;
