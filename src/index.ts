@@ -23,7 +23,7 @@ export type WebAccessControlOptions = {
   origin: string;
   fetch: (request: Request) => Promise<Response>;
   trustedOrigins?: string[]
-  allowedCache?: { [key: string]: WebAccessControlResult };
+  allowedCache?: { [key: string]: Promise<WebAccessControlResult> };
   aclResourceCache?: { [key: string]: Promise<string> };
   getAccessResourceAndModeIfACLResource?: (resource: string) => WebAccessControlResourceAndMode | Promise<WebAccessControlResourceAndMode>
   getGraph?: WebAccessControlGetGraph
@@ -131,12 +131,12 @@ async function getACLResource(resource: string, options: WebAccessControlOptions
   return resourceUrl.toString();
 }
 
-async function getCached<T>(cache: { [key: string]: Promise<T> } | undefined, fn: (key: string, ...args: any[]) => Promise<T>, key: string, ...args: any[]): Promise<T> {
+async function getCached<T>(cache: { [key: string]: Promise<T> } | undefined, fn: (...args: any[]) => Promise<T>, key: string, ...args: any[]): Promise<T> {
   if (cache && cache[key]) {
     return cache[key];
   }
   // This is cached no matter what the result is
-  const result = fn(key, ...args);
+  const result = fn(...args);
   if (!cache) {
     return result;
   }
@@ -153,7 +153,7 @@ async function getCached<T>(cache: { [key: string]: Promise<T> } | undefined, fn
 }
 
 async function getACL(resource: string, getGraph: WebAccessControlGetGraph, options: WebAccessControlOptions): Promise<ACLDetails | undefined> {
-  const aclResource = await getCached(options.aclResourceCache, getACLResource, resource, options);
+  const aclResource = await getCached(options.aclResourceCache, getACLResource, resource, resource, options);
 
   function getContainerACL() {
     return getACL(
@@ -186,13 +186,8 @@ async function getACL(resource: string, getGraph: WebAccessControlGetGraph, opti
   };
 }
 
-export async function isAllowed(resource: string, mode: WebAccessControlMode | WebAccessControlMode[], options: WebAccessControlOptions): Promise<WebAccessControlResult> {
-  const { allowedCache, agent } = options,
-    cacheKey = `${mode}:${resource}:${agent || "---ANONYMOUS---"}`;
-
-  if (allowedCache && (allowedCache[cacheKey] || allowedCache[cacheKey] === false)) {
-    return allowedCache[cacheKey];
-  }
+async function isAllowedNoCache(resource: string, mode: WebAccessControlMode | WebAccessControlMode[], options: WebAccessControlOptions): Promise<WebAccessControlResult> {
+  const { allowedCache, agent } = options;
 
   const getGraph: WebAccessControlGetGraph = options.getGraph || (async (url: string, graph: IndexedFormula) => {
     const request = new Request(
@@ -224,9 +219,6 @@ export async function isAllowed(resource: string, mode: WebAccessControlMode | W
   const acl = await getACL(resource, getGraph, options);
 
   if (!acl) {
-    if (allowedCache) {
-      allowedCache[cacheKey] = false;
-    }
     return false;
   }
 
@@ -278,11 +270,12 @@ export async function isAllowed(resource: string, mode: WebAccessControlMode | W
     public: !options.agent
   };
 
-  if (allowedCache) {
-    allowedCache[cacheKey] = result;
-  }
-
   return result;
+}
+
+export async function isAllowed(resource: string, mode: WebAccessControlMode | WebAccessControlMode[], options: WebAccessControlOptions): Promise<WebAccessControlResult> {
+  const cacheKey = `${mode}:${resource}:${options.agent || "---ANONYMOUS---"}`
+  return getCached(options.allowedCache, isAllowed, cacheKey, resource, mode, options);
 }
 
 /**
