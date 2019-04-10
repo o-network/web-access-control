@@ -131,12 +131,15 @@ async function getACLResource(resource: string, options: WebAccessControlOptions
   return resourceUrl.toString();
 }
 
-async function getCached<T>(cache: { [key: string]: Promise<T> }, fn: (key: string, ...args: any[]) => Promise<T>, key: string, ...args: any[]): Promise<T> {
-  if (cache[key]) {
+async function getCached<T>(cache: { [key: string]: Promise<T> } | undefined, fn: (key: string, ...args: any[]) => Promise<T>, key: string, ...args: any[]): Promise<T> {
+  if (cache && cache[key]) {
     return cache[key];
   }
-  cache[key] = fn(key, ...args);
-  return cache[key];
+  const result = fn(key, ...args);
+  if (cache) {
+    cache[key] = result;
+  }
+  return result;
 }
 
 async function getACL(resource: string, getGraph: WebAccessControlGetGraph, options: WebAccessControlOptions): Promise<ACLDetails | undefined> {
