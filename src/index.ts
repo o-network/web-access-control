@@ -135,10 +135,20 @@ async function getCached<T>(cache: { [key: string]: Promise<T> } | undefined, fn
   if (cache && cache[key]) {
     return cache[key];
   }
+  // This is cached no matter what the result is
   const result = fn(key, ...args);
-  if (cache) {
-    cache[key] = result;
+  if (!cache) {
+    return result;
   }
+  cache[key] = result;
+  // If we run into an error, reset the cache so we
+  // can see if there is a non error'd version
+  result
+    .catch(() => {
+      if (cache[key] === result) {
+        cache[key] = undefined;
+      }
+    });
   return result;
 }
 
