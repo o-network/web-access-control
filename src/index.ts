@@ -274,7 +274,7 @@ async function isAllowedNoCache(resource: string, mode: WebAccessControlMode | W
 }
 
 export async function isAllowed(resource: string, mode: WebAccessControlMode | WebAccessControlMode[], options: WebAccessControlOptions): Promise<WebAccessControlResult> {
-  const cacheKey = `${mode}:${resource}:${options.agent || "---ANONYMOUS---"}`
+  const cacheKey = `${mode}:${resource}:${options.agent || "---ANONYMOUS---"}`;
   return getCached(options.allowedCache, isAllowed, cacheKey, resource, mode, options);
 }
 
