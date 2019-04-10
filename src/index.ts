@@ -83,6 +83,8 @@ function getACLLinkFromResponse(response: Response): string | undefined {
 
      OWS = Optional whitespace
      BWS = Bad whitespace AKA whitespace _should_ not be present
+
+     Should look like `Link: <.acl>; rel="acl"
    */
   const links = response.headers.getAll("Link");
   const foundPart = links
@@ -259,15 +261,15 @@ export async function isAllowed(resource: string, mode: WebAccessControlMode | W
     originTrustedModes
   );
 
-  if (denied) {
-    options.allowedCache[cacheKey] = false;
-  } else {
-    options.allowedCache[cacheKey] = {
-      public: !options.agent
-    };
+  const result = denied ? false : {
+    public: !options.agent
+  };
+
+  if (allowedCache) {
+    allowedCache[cacheKey] = result;
   }
 
-  return options.allowedCache[cacheKey];
+  return result;
 }
 
 /**
