@@ -1,6 +1,6 @@
 {
   "name": "@opennetwork/web-access-control",
-  "version": "1.0.15",
+  "version": "2.0.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
