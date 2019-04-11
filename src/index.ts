@@ -11,9 +11,10 @@ export type WebAccessControlResultObject = {
 
 export type WebAccessControlResult = false | WebAccessControlResultObject;
 
-export type WebAccessControlResourceAndMode = {
-  resource: string,
-  mode: WebAccessControlMode | WebAccessControlMode[]
+export type WebAccessControlMode = "Read" | "Write" | "Append" | "Control" | string;
+
+export type WebAccessControlResourceAndMode = ({ modes: WebAccessControlMode[] } | { mode: WebAccessControlMode }) & {
+  resource: string
 };
 
 export type WebAccessControlGetGraph = (url: string, graph: IndexedFormula) => Promise<Response | IndexedFormula>;
@@ -28,8 +29,6 @@ export type WebAccessControlOptions = {
   getAccessResourceAndModeIfACLResource?: (resource: string) => WebAccessControlResourceAndMode | Promise<WebAccessControlResourceAndMode>
   getGraph?: WebAccessControlGetGraph
 };
-
-export type WebAccessControlMode = "Read" | "Write" | "Append" | "Control" | string;
 
 type ACLDetails = {
   graph: IndexedFormula;
@@ -228,10 +227,14 @@ async function isAllowedNoCache(resource: string, mode: WebAccessControlMode | W
   let workingResource = resource;
 
   if (options.getAccessResourceAndModeIfACLResource) {
-    const newDetails = await Promise.resolve(options.getAccessResourceAndModeIfACLResource(workingResource));
+    const newDetails: any = await Promise.resolve(options.getAccessResourceAndModeIfACLResource(workingResource));
     if (newDetails) {
       workingResource = newDetails.resource;
-      modes = newDetails.mode;
+      if (Array.isArray(newDetails.modes)) {
+        modes = newDetails.modes;
+      } else if (typeof newDetails.mode === "string") {
+        modes = [newDetails.mode];
+      }
     }
   }
 
