@@ -187,7 +187,7 @@ async function getACL(resource: string, getGraph: WebAccessControlGetGraph, opti
 }
 
 async function isAllowedNoCache(resource: string, mode: WebAccessControlMode | WebAccessControlMode[], options: WebAccessControlOptions): Promise<WebAccessControlResult> {
-  const { allowedCache, agent } = options;
+  const { agent } = options;
 
   const getGraph: WebAccessControlGetGraph = options.getGraph || (async (url: string, graph: IndexedFormula) => {
     const request = new Request(
@@ -208,7 +208,7 @@ async function isAllowedNoCache(resource: string, mode: WebAccessControlMode | W
       (resolve, reject) => $rdf.parse(
         body,
         graph,
-        resource,
+        url,
         request.headers.get("Accept"),
         (error) => error ? reject(error) : resolve()
       )
@@ -237,12 +237,14 @@ async function isAllowedNoCache(resource: string, mode: WebAccessControlMode | W
 
   modes = Array.isArray(modes) ? [...modes] : [modes];
 
+  const directory = acl.resource.endsWith("/") ? $rdf.sym(acl.resource) : undefined;
+
   const originTrustedModes = await Promise.resolve()
   // Because of https://github.com/solid/acl-check/issues/23
     .then(() => ACLCheck.getTrustedModesForOrigin(
       acl.graph,
       $rdf.sym(workingResource),
-      workingResource.endsWith("/"),
+      directory,
       $rdf.sym(acl.aclResource),
       agentOrigin,
       async (uriNode: NamedNode): Promise<IndexedFormula> => {
@@ -252,12 +254,14 @@ async function isAllowedNoCache(resource: string, mode: WebAccessControlMode | W
         }
         return value as IndexedFormula;
       }
-    ));
+    ))
+    // Return empty on failure
+    .catch(() => []);
 
   const denied = ACLCheck.accessDenied(
     acl.graph,
     $rdf.sym(workingResource),
-    workingResource.endsWith("/"),
+    directory,
     $rdf.sym(acl.aclResource),
     agent ? $rdf.sym(agent) : undefined,
     modes.map(mode => NAMESPACE_ACL(mode)),
@@ -266,16 +270,14 @@ async function isAllowedNoCache(resource: string, mode: WebAccessControlMode | W
     originTrustedModes
   );
 
-  const result = denied ? false : {
+  return denied ? false : {
     public: !options.agent
   };
-
-  return result;
 }
 
 export async function isAllowed(resource: string, mode: WebAccessControlMode | WebAccessControlMode[], options: WebAccessControlOptions): Promise<WebAccessControlResult> {
   const cacheKey = `${mode}:${resource}:${options.agent || "---ANONYMOUS---"}`;
-  return getCached(options.allowedCache, isAllowed, cacheKey, resource, mode, options);
+  return getCached(options.allowedCache, isAllowedNoCache, cacheKey, resource, mode, options);
 }
 
 /**

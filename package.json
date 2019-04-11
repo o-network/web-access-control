@@ -11,18 +11,23 @@
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
-    "@opennetwork/http-representation": "^1.0.14",
+    "@opennetwork/http-representation": "^2.0.1",
     "@solid/acl-check": "^0.2.0",
     "rdflib": "^0.20.0"
   },
   "devDependencies": {
-    "@opennetwork/http-representation": "^1.0.14",
+    "@opennetwork/http-representation": "^2.0.1",
+    "@opennetwork/http-representation-node": "^1.0.6",
+    "@opennetwork/http-store": "^2.0.0",
     "@solid/acl-check": "^0.2.0",
     "@types/es6-shim": "^0.31.39",
     "@types/node": "^11.11.4",
     "@types/rdflib": "^0.17.1",
     "es6-shim": "^0.35.5",
+    "esm": "^3.2.22",
+    "fs-extra": "^7.0.1",
     "rdflib": "^0.20.0",
+    "rimraf": "^2.6.3",
     "tslint": "^5.14.0",
     "typescript": "^3.3.4000"
   },
