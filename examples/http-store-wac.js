@@ -1,13 +1,15 @@
 import { FSStore } from "@opennetwork/http-store";
 import { fromRequest, sendResponse } from "@opennetwork/http-representation-node";
 import { Response } from "@opennetwork/http-representation";
-import { getResponse } from "../dist";
+import { getResponse, getAllowedHeaderValue } from "../dist";
 import http from "http";
 import fs from "fs";
 import rimraf from "rimraf";
 import { mkdirp } from "fs-extra";
 import withACL from "./util/http-store-with-acl";
+import ACLCheck from "@solid/acl-check";
 
+ACLCheck.configureLogger(() => {});
 
 const store = withACL(new FSStore({
   fs,
@@ -31,7 +33,7 @@ async function handle(initialRequest, initialResponse) {
     DELETE: 'Write',
     PUT: 'Write',
     POST: 'Write', // FS Store doesn't support post, but allow it here
-    COPY: 'Write',
+    COPY: true,
     OPTIONS: 'Read'
   }[request.method.toUpperCase()];
 
@@ -46,26 +48,35 @@ async function handle(initialRequest, initialResponse) {
     );
   }
 
+  const options = {
+    agent: 'http://localhost:8080/public#self',
+    origin,
+    fetch: store.fetch,
+    trustedOrigins: [origin],
+    // allowedCache: {},
+    // aclResourceCache: {},
+    // fetchCache: {},
+    getAccessResourceAndModeIfACLResource: resource => /\.acl$/i.test(resource) ? ({
+      resource: resource.replace(/\.acl$/i, ''),
+      mode: 'Control'
+    }) : null
+  };
+
+  const allowValue = await getAllowedHeaderValue(request.url, options);
+
+  console.log({ allowValue });
+
+  // Skip if true, as COPY will also hit the "GET" & "PUT"
   const earlyResponse = await getResponse(
     request.url,
     mode,
-    {
-      agent: 'http://localhost:8080/public#self',
-      origin,
-      fetch: store.fetch,
-      trustedOrigins: [origin],
-      allowedCache: {},
-      aclResourceCache: {},
-      getAccessResourceAndModeIfACLResource: resource => /\.acl$/i.test(resource) ? ({
-        resource: resource.replace(/\.acl$/i, ''),
-        mode: 'Control'
-      }) : null
-    }
+    options
   );
 
   console.log({ earlyResponse });
 
   if (earlyResponse) {
+    earlyResponse.headers.set("WAC-Allow", allowValue);
     return sendResponse(earlyResponse, initialRequest, initialResponse);
   }
 
@@ -73,6 +84,10 @@ async function handle(initialRequest, initialResponse) {
   const fetchedResponse = await store.fetch(
     request
   );
+
+  console.log({ fetchedResponse });
+
+  fetchedResponse.headers.set("WAC-Allow", allowValue);
 
   return sendResponse(fetchedResponse, initialRequest, initialResponse)
 }

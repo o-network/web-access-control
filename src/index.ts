@@ -9,6 +9,11 @@ export type WebAccessControlResultObject = {
   public: boolean;
 };
 
+export type WebAccessControlAllowed = {
+  agent?: WebAccessControlMode[],
+  public: WebAccessControlMode[]
+};
+
 export type WebAccessControlResult = false | WebAccessControlResultObject;
 
 export type WebAccessControlMode = "Read" | "Write" | "Append" | "Control" | string;
@@ -26,8 +31,10 @@ export type WebAccessControlOptions = {
   trustedOrigins?: string[]
   allowedCache?: { [key: string]: Promise<WebAccessControlResult> };
   aclResourceCache?: { [key: string]: Promise<string> };
+  fetchCache?: { [key: string]: Promise<string | Response> };
   getAccessResourceAndModeIfACLResource?: (resource: string) => WebAccessControlResourceAndMode | Promise<WebAccessControlResourceAndMode>
   getGraph?: WebAccessControlGetGraph
+  allowedModes?: WebAccessControlMode[]
 };
 
 type ACLDetails = {
@@ -186,29 +193,38 @@ async function getACL(resource: string, getGraph: WebAccessControlGetGraph, opti
 }
 
 async function isAllowedNoCache(resource: string, mode: WebAccessControlMode | WebAccessControlMode[], options: WebAccessControlOptions): Promise<WebAccessControlResult> {
-  const { agent } = options;
+  const { agent, fetchCache } = options;
 
   const getGraph: WebAccessControlGetGraph = options.getGraph || (async (url: string, graph: IndexedFormula) => {
-    const request = new Request(
-      url,
-      {
-        method: "GET",
-        headers: {
-          "Accept": "text/turtle"
+    const type = "text/turtle";
+
+    const body = await getCached(fetchCache, async (): Promise<string | Response> => {
+      const request = new Request(
+        url,
+        {
+          method: "GET",
+          headers: {
+            "Accept": type
+          }
         }
+      );
+      const response = await options.fetch(request);
+      if (!response.ok) {
+        return response;
       }
-    );
-    const response = await options.fetch(request);
-    if (!response.ok) {
-      return response;
+      return response.text();
+    }, `GET:${url}`);
+
+    if (typeof body !== "string") {
+      return body;
     }
-    const body = await response.text();
+
     await new Promise(
       (resolve, reject) => $rdf.parse(
         body,
         graph,
         url,
-        request.headers.get("Accept"),
+        type,
         (error) => error ? reject(error) : resolve()
       )
     );
@@ -239,6 +255,16 @@ async function isAllowedNoCache(resource: string, mode: WebAccessControlMode | W
   }
 
   modes = Array.isArray(modes) ? [...modes] : [modes];
+
+  if (options.allowedModes) {
+    const allowedModesUpper = options.allowedModes.map(value => value.toUpperCase());
+    const missing = modes.find(
+      mode => allowedModesUpper.indexOf(mode.toUpperCase()) === -1
+    );
+    if (missing) {
+      throw new Error(`The mode '${missing}' is not supported`);
+    }
+  }
 
   const directory = acl.resource.endsWith("/") ? $rdf.sym(acl.resource) : undefined;
 
@@ -303,3 +329,57 @@ export function getResponse(resource: string, mode: WebAccessControlMode | WebAc
     })
     .catch(error => createErrorResponse(error));
 }
+
+export async function getAllowed(resource: string, options: WebAccessControlOptions): Promise<WebAccessControlAllowed> {
+
+  const modes = options.allowedModes || [
+    "Read",
+    "Write",
+    "Append",
+    "Control"
+  ];
+
+  async function getForAgent(agent: string): Promise<WebAccessControlMode[]> {
+    const agentOptions: WebAccessControlOptions = {
+      ...options,
+      agent
+    };
+    const values = await Promise.all(
+      modes
+        .map(async mode => ({
+          mode,
+          allowed: await isAllowed(resource, mode, agentOptions)
+        }))
+    );
+
+    return values
+      .filter(({ allowed }) => {
+        if (!allowed) {
+          return false;
+        }
+        return options.agent || allowed.public;
+      })
+      .map(({ mode }) => mode);
+  }
+
+  const publicPromise = getForAgent(undefined);
+  const agentPromise = options.agent ? getForAgent(options.agent) : undefined;
+
+  return {
+    agent: await agentPromise,
+    public: await publicPromise
+  };
+}
+
+// Will result in something like user="read write", public="read"
+// To be used as the value for `WAC-Allow`
+// It is recommended that this function be ran early on in a request so that we can cache everything for this resource
+export async function getAllowedHeaderValue(resource: string, options: WebAccessControlOptions): Promise<string> {
+  const result: any = await getAllowed(resource, options);
+  const keyMap: any = { agent: "user" };
+  return Object.keys(result)
+    .filter((key: string) => result[key] && result[key].length)
+    .map((key: string): string => `${keyMap[key] || key}="${result[key].map((value: string) => value.toLowerCase()).join(" ")}"`)
+    .join(", ");
+}
+

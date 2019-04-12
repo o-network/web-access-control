@@ -6,4 +6,6 @@ declare module "@solid/acl-check" {
 
   export function accessDenied(kb: IndexedFormula, doc: ValueType, directory: ValueType, aclDoc: ValueType, agent: ValueType, modes: ValueType[], origin: ValueType, trustedOrigins: ValueType[] | undefined, originTrustedModes: Node[]): boolean;
 
+  export function configureLogger(logger: (...msgs: string[]) => void): void;
+
 }
