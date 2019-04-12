@@ -30,7 +30,7 @@ async function getACLUrl(store, url) {
 export default function(store) {
   return {
     fetch: async (request) => {
-      console.log('Fetching', request.url);
+      console.log('Fetching', request.method, request.url);
 
       const response = await store.fetch(request);
 

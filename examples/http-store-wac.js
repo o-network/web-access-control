@@ -53,9 +53,9 @@ async function handle(initialRequest, initialResponse) {
     origin,
     fetch: store.fetch,
     trustedOrigins: [origin],
-    // allowedCache: {},
-    // aclResourceCache: {},
-    // fetchCache: {},
+    allowedCache: {},
+    aclResourceCache: {},
+    fetchCache: {},
     getAccessResourceAndModeIfACLResource: resource => /\.acl$/i.test(resource) ? ({
       resource: resource.replace(/\.acl$/i, ''),
       mode: 'Control'
@@ -64,16 +64,12 @@ async function handle(initialRequest, initialResponse) {
 
   const allowValue = await getAllowedHeaderValue(request.url, options);
 
-  console.log({ allowValue });
-
   // Skip if true, as COPY will also hit the "GET" & "PUT"
   const earlyResponse = await getResponse(
     request.url,
     mode,
     options
   );
-
-  console.log({ earlyResponse });
 
   if (earlyResponse) {
     earlyResponse.headers.set("WAC-Allow", allowValue);
@@ -84,8 +80,6 @@ async function handle(initialRequest, initialResponse) {
   const fetchedResponse = await store.fetch(
     request
   );
-
-  console.log({ fetchedResponse });
 
   fetchedResponse.headers.set("WAC-Allow", allowValue);
 
